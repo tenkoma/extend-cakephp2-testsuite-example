@@ -65,7 +65,7 @@ defaults: &defaults
     - run:
         name: run tests
         command: |
-          ./Test/test_app/Console/cake test BaseTestSuite AllBaseTestSuite --stderr --log-junit ~/reports/phpunit/junit.xml
+          ./Test/test_app/Console/cake test ExtendTestSuite AllExtendTestSuite --stderr --log-junit ~/reports/phpunit/junit.xml
     - store_artifacts:
         path: ~/reports/
     - store_test_results:
