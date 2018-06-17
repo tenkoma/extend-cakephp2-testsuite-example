@@ -1,0 +1,95 @@
+workflows:
+  version: 2
+  matrix-build:
+    jobs:
+      - php56-phpunit3
+      - php56-phpunit5
+      - php71-phpunit3
+      - php71-phpunit5
+
+defaults: &defaults
+  environment:
+    - PHP_VERSION: '7.1'
+    - PHPUNIT_VERSION: '5.*'
+  docker:
+    - image: circleci/php:$PHP_VERSION
+      auth:
+        username: $DOCKER_USER
+        password: $DOCKER_PASS
+      environment:
+        DEV_MYSQL_HOST: 127.0.0.1
+        DEV_MYSQL_PORT: 3306
+        DEV_MYSQL_USER: base
+        DEV_MYSQL_PASS: base
+    - image: circleci/mysql:5.6
+      command: mysqld --character-set-server=utf8 --sql_mode=NO_ENGINE_SUBSTITUTION --innodb_lock_wait_timeout=3
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: test_base
+        MYSQL_USER: base
+        MYSQL_PASSWORD: base
+  working_dir: ~/
+  steps:
+    - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libicu-dev g++ mariadb-client
+    - run: sudo docker-php-ext-install intl pdo_mysql
+    - checkout
+    - run:
+        name: save cache key as file
+        command: echo "$PHP_VERSION" > .cache_key
+    - restore_cache:
+        name: restore cache - composer
+        key: composer-{{ arch }}-{{ checksum ".cache_key" }}-v2
+    - run:
+        name: install phpunit
+        command: composer require --dev phpunit/phpunit:"$PHPUNIT_VERSION"
+    - run:
+        name: composer install
+        command: |
+          composer install --dev --no-suggest
+    - save_cache:
+        name: save cache - composer
+        key: composer-{{ arch }}-{{ checksum ".cache_key" }}-v2
+        paths:
+          - vendor
+    - run:
+        name: create test repotes dir
+        command: |
+          mkdir -p ~/reports/phpunit
+    - run:
+        name: setup test app
+        command: |
+          yes y | vendor/bin/cake bake project Test/test_app || true
+          echo "CakePlugin::load('BaseTestSuite', array('path' => dirname(ROOT) . DS));" >> 'Test/test_app/Config/bootstrap.php'
+          echo "require_once dirname(ROOT) . DS . 'vendor' . DS . 'autoload.php';" >> 'Test/test_app/Config/bootstrap.php'
+          cp .circleci/database.php Test/test_app/Config/database.php
+    - run:
+        name: run tests
+        command: |
+          ./Test/test_app/Console/cake test BaseTestSuite AllBaseTestSuite --stderr --log-junit ~/reports/phpunit/junit.xml
+    - store_artifacts:
+        path: ~/reports/
+    - store_test_results:
+        path: ~/reports/
+
+version: 2
+jobs:
+  php56-phpunit3:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '5.6'
+      - PHPUNIT_VERSION: '3.*'
+  php56-phpunit5:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '5.6'
+      - PHPUNIT_VERSION: '5.*'
+  php71-phpunit3:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '7.1'
+      - PHPUNIT_VERSION: '3.*'
+  php71-phpunit5:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '7.1'
+      - PHPUNIT_VERSION: '5.*'
