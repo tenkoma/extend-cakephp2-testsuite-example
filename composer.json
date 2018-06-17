@@ -1,0 +1,15 @@
+{
+    "name": "tenkoma/extend-cakephp2-testsuite-example",
+    "type": "library",
+    "description": "Extend CakePHP2 TestSuite example",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Koji Tanaka",
+            "email": "tenkoma@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    }
+}
