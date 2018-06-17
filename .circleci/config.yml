@@ -59,6 +59,7 @@ defaults: &defaults
         name: setup test app
         command: |
           yes y | vendor/bin/cake bake project Test/test_app || true
+          echo "date_default_timezone_set('UTC');" >> 'Test/test_app/Config/core.php'
           echo "CakePlugin::load('BaseTestSuite', array('path' => dirname(ROOT) . DS));" >> 'Test/test_app/Config/bootstrap.php'
           echo "require_once dirname(ROOT) . DS . 'vendor' . DS . 'autoload.php';" >> 'Test/test_app/Config/bootstrap.php'
           cp .circleci/database.php Test/test_app/Config/database.php
