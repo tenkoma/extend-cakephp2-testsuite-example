@@ -2,9 +2,9 @@ workflows:
   version: 2
   matrix-build:
     jobs:
-      - php56-phpunit3
-      - php56-phpunit5
-      - php71-phpunit3
+      #- php56-phpunit3
+      #- php56-phpunit5
+      #- php71-phpunit3
       - php71-phpunit5
 
 defaults: &defaults
@@ -28,7 +28,6 @@ defaults: &defaults
         MYSQL_DATABASE: test_base
         MYSQL_USER: base
         MYSQL_PASSWORD: base
-  working_dir: ~/
   steps:
     - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libicu-dev g++ mariadb-client
     - run: sudo docker-php-ext-install intl pdo_mysql
@@ -60,7 +59,7 @@ defaults: &defaults
         command: |
           yes y | vendor/bin/cake bake project Test/test_app || true
           echo "date_default_timezone_set('UTC');" >> 'Test/test_app/Config/core.php'
-          echo "CakePlugin::load('BaseTestSuite', array('path' => dirname(ROOT) . DS));" >> 'Test/test_app/Config/bootstrap.php'
+          echo "CakePlugin::load('ExtendTestSuite', array('path' => dirname(ROOT) . DS));" >> 'Test/test_app/Config/bootstrap.php'
           echo "require_once dirname(ROOT) . DS . 'vendor' . DS . 'autoload.php';" >> 'Test/test_app/Config/bootstrap.php'
           cp .circleci/database.php Test/test_app/Config/database.php
     - run:
