@@ -2,10 +2,13 @@ workflows:
   version: 2
   matrix-build:
     jobs:
-      #- php56-phpunit3
-      #- php56-phpunit5
-      #- php71-phpunit3
+      - php56-phpunit3
+      - php56-phpunit5
+      - php71-phpunit3
       - php71-phpunit5
+      - php72-phpunit3
+      - php72-phpunit4
+      - php72-phpunit5
 
 defaults: &defaults
   environment:
@@ -92,4 +95,19 @@ jobs:
     <<: *defaults
     environment:
       - PHP_VERSION: '7.1'
+      - PHPUNIT_VERSION: '5.*'
+  php72-phpunit3:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '7.2'
+      - PHPUNIT_VERSION: '3.*'
+  php72-phpunit4:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '7.2'
+      - PHPUNIT_VERSION: '4.*'
+  php72-phpunit5:
+    <<: *defaults
+    environment:
+      - PHP_VERSION: '7.2'
       - PHPUNIT_VERSION: '5.*'
