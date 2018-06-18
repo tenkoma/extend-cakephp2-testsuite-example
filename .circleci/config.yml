@@ -34,10 +34,10 @@ defaults: &defaults
     - checkout
     - run:
         name: save cache key as file
-        command: echo "$PHP_VERSION" > .cache_key
+        command: echo "$PHP_VERSION-$PHPUNIT_VERSION" > .cache_key
     - restore_cache:
         name: restore cache - composer
-        key: composer-{{ arch }}-{{ checksum ".cache_key" }}-v2
+        key: composer-{{ arch }}-{{ checksum ".cache_key" }}
     - run:
         name: install phpunit
         command: composer require --dev phpunit/phpunit:"$PHPUNIT_VERSION"
@@ -47,7 +47,7 @@ defaults: &defaults
           composer install --dev --no-suggest
     - save_cache:
         name: save cache - composer
-        key: composer-{{ arch }}-{{ checksum ".cache_key" }}-v2
+        key: composer-{{ arch }}-{{ checksum ".cache_key" }}
         paths:
           - vendor
     - run:
