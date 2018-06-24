@@ -1,6 +1,25 @@
 <?php
 App::uses('ExtendTestSuiteConstraintIsIdentical', 'ExtendTestSuite.TestSuite/Constraint');
 class ExtendTestCase extends CakeTestCase {
+
+    /** @var array */
+    protected $backupConfigure = [];
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->backupConfigure = Configure::read();
+    }
+
+    public function tearDown()
+    {
+        Configure::clear();
+        Configure::write($this->backupConfigure);
+
+        parent::tearDown();
+    }
+
     /**
      * PHPUnit 7 の assertSame array diff が出来るようにする
      * @param mixed $expected
